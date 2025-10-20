@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My To-Do List</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #89f7fe, #EAE15F);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .todo-container {
+      background: #fff;
+      width: 90%;
+      max-width: 400px;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: 0.3s ease;
+    }
+
+    .todo-container:hover {
+      transform: translateY(-5px);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.8em;
+    }
+
+    .input-area {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #66a6ff;
+      border-radius: 8px;
+      outline: none;
+      font-size: 1em;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: #89f7fe;
+      box-shadow: 0 0 8px rgba(102, 166, 255, 0.4);
+    }
+
+    button {
+      margin-left: 10px;
+      background: linear-gradient(135deg, #66a6ff, #89f7fe);
+      border: none;
+      padding: 10px 15px;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    li {
+      background: #f3f8ff;
+      color: #333;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    li.completed {
+      text-decoration: line-through;
+      color: gray;
+      opacity: 0.7;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .delete-btn {
+      background: #ff6b6b;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: 0.3s;
+    }
+
+    .delete-btn:hover {
+      background: #ff4040;
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 1.4em;
+      }
+      input {
+        font-size: 0.9em;
+      }
+      button {
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="todo-container">
+    <h2>✨ My To-Do List ✨</h2>
+    <div class="input-area">
+      <input type="text" id="taskInput" placeholder="Add a new task...">
+      <button id="addBtn">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const addBtn = document.getElementById('addBtn');
+    const taskList = document.getElementById('taskList');
+
+    // Load tasks from localStorage
+    window.addEventListener('load', loadTasks);
+
+    function loadTasks() {
+      const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      storedTasks.forEach(task => createTask(task.text, task.completed));
+    }
+
+    // Add a new task
+    addBtn.addEventListener('click', () => {
+      const taskText = taskInput.value.trim();
+      if (taskText) {
+        createTask(taskText);
+        saveTask(taskText, false);
+        taskInput.value = '';
+      }
+    });
+
+    // Create a task element
+    function createTask(text, completed = false) {
+      const li = document.createElement('li');
+      li.textContent = text;
+      if (completed) li.classList.add('completed');
+
+      li.addEventListener('click', () => {
+        li.classList.toggle('completed');
+        updateLocalStorage();
+      });
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✖';
+      delBtn.className = 'delete-btn';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        li.remove();
+        updateLocalStorage();
+      });
+
+      li.appendChild(delBtn);
+      taskList.appendChild(li);
+    }
+
+    // Save task to localStorage
+    function saveTask(text, completed) {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.push({ text, completed });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Update localStorage
+    function updateLocalStorage() {
+      const tasks = [];
+      taskList.querySelectorAll('li').forEach(li => {
+        tasks.push({ text: li.firstChild.textContent, completed: li.classList.contains('completed') });
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+  </script>
+</body>
+</html>
